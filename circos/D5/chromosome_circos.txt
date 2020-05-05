@@ -1,0 +1,13 @@
+chr	-	Chr01	D01	0	55868233	myChr01
+chr	-	Chr02	D02	0	62769430	myChr02
+chr	-	Chr03	D03	0	45765648	myChr03
+chr	-	Chr04	D04	0	62178258	myChr04
+chr	-	Chr05	D05	0	64140413	myChr05
+chr	-	Chr06	D06	0	51074515	myChr06
+chr	-	Chr07	D07	0	60982465	myChr07
+chr	-	Chr08	D08	0	57128820	myChr08
+chr	-	Chr09	D09	0	70713020	myChr09
+chr	-	Chr10	D10	0	62175169	myChr10
+chr	-	Chr11	D11	0	62681010	myChr11
+chr	-	Chr12	D12	0	35429946	myChr12
+chr	-	Chr13	D13	0	58321163	myChr13
