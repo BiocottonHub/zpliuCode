@@ -2,7 +2,7 @@
 
 
 
-+ :currency_exchange: log2求表达差异
++ [:currency_exchange: log2求表达差异](#log2.awk)
 
 
 
