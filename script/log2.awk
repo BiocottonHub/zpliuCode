@@ -9,21 +9,21 @@
 
 {
 
-if($fild1<=0.5&&$fild2<=0.5)
+if($fild1<=1&&$fild2<=1)
     {
         print $0"\t"0
     }
 
-if($fild1>0.5 && $fild2<=0.5)
+if($fild1>1 && $fild2<=1)
     {	
-		print $0"\t"log($fild1/0.5)/log(2)
+		print $0"\t"log($fild1/1)/log(2)
     }
-if($fild1<=0.5 && $fild2>0.5)
+if($fild1<=1 && $fild2>1)
     {
-        print $0"\t"log(0.5/$fild2)/log(2)
+        print $0"\t"log(1/$fild2)/log(2)
     }
 
-if($fild1>0.5 && $fild2>0.5)
+if($fild1>1 && $fild2>1)
     {
 		print $0"\t"log($fild1/$fild2)/log(2)
     }

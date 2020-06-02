@@ -19,7 +19,8 @@ parser = argparse.ArgumentParser(
 parser.add_argument("-chr", help="chrosomoe bed file")
 parser.add_argument("-t", help="lterate times")
 parser.add_argument("-d", help="out directory")
-parser.add_argument("-TAD", help="the minimal length of TAD")
+parser.add_argument("-min", help="the minimal length of TAD")
+parser.add_argument("-max", help="the minimal length of TAD")
 parser.add_argument("-init", help="init boundary random position")
 
 args = parser.parse_args()
@@ -41,9 +42,9 @@ def mkdir(path):
         return False
 
 
-def satisfGap(Array1, gap):
+def satisfGap(Array1, min):
     for index in range(1, len(Array1)):
-        if Array1[index] - Array1[index-1] < gap:
+        if Array1[index] - Array1[index-1] < min:
             return False
         else:
             continue
@@ -54,12 +55,27 @@ def ifoverchromosome(anchro, chromosomelength):
     '''
     判断bodunary位置与染色长度间关系
     '''
-    if anchro+int(args.gap) < chromosomelength and anchro-int(args.gap) > 1:
-        return 1
-    if anchro+int(args.gap) < chromosomelength and anchro-int(args.gap) < 1:
-        return 2
-    if anchro+int(args.gap) > chromosomelength and anchro-int(args.gap) > 1:
-        return 3
+    if anchro+int(args.min) < chromosomelength and anchro-int(args.min) > 1:
+        if anchro+int(args.min)+int(args.max) < chromosomelength and anchro-int(args.min)-int(args.max) > 1:
+            return 1
+        if anchro+int(args.min)+int(args.max) > chromosomelength and anchro-int(args.min)-int(args.max) > 1:
+            return 2
+        if anchro+int(args.min)+int(args.max) < chromosomelength and anchro-int(args.min)-int(args.max) < 1:
+            return 3
+        if anchro+int(args.min)+int(args.max) > chromosomelength and anchro-int(args.min)-int(args.max) < 1:
+            return 4
+    if anchro+int(args.min) < chromosomelength and anchro-int(args.min) < 1:
+        if anchro+int(args.min)+int(args.max) < chromosomelength:
+            return 5
+        if anchro+int(args.min)+int(args.max) > chromosomelength:
+            return 6
+    if anchro+int(args.min) > chromosomelength and anchro-int(args.min) > 1:
+        if anchro-int(args.min)-int(args.max) > 1:
+            return 7
+        if anchro-int(args.min)-int(args.max) < 1:
+            return 8
+    if anchro+int(args.min) > chromosomelength and anchro-int(args.min) < 1:
+        return 9
 
 
 def getAnchroNum(anchro):
@@ -110,26 +126,56 @@ with open(args.chr, 'r') as File:
                     elif len(out) == 1:  # 其实这步可以和else合并
                         if ifoverchromosome(out[0], end) == 1:
                             out.append(getAnchroNum(
-                                [[1, out[0]-int(args.gap)], [out[0]+int(args.gap), end]]))
+                                [[out[0]-int(args.min)-int(args.max), out[0]-int(args.min)], [out[0]+int(args.min), out[0]+int(args.min)+int(args.max)]]))
                         elif ifoverchromosome(out[0], end) == 2:
                             out.append(getAnchroNum(
-                                [[out[0]+int(args.gap), end]]))
+                                [[out[0]-int(args.min)-int(args.max), out[0]-int(args.min)], [out[0]+int(args.min), end]]))
                         elif ifoverchromosome(out[0], end) == 3:
                             out.append(getAnchroNum(
-                                [[1, out[0]-int(args.gap)]]))
+                                [[1, out[0]-int(args.min)], [out[0]+int(args.min), out[0]+int(args.min)+int(args.max)]]))
+                        elif ifoverchromosome(out[0], end) == 4:
+                            out.append(getAnchroNum(
+                                [[1, out[0]-int(args.min)], [out[0]+int(args.min), end]]))
+                        elif ifoverchromosome(out[0], end) == 5:
+                            out.append(getAnchroNum(
+                                [[out[0]+int(args.min), out[0]+int(args.min)+int(args.max)]]))
+                        elif ifoverchromosome(out[0], end) == 6:
+                            out.append(getAnchroNum(
+                                [[out[0]+int(args.min), end]]))
+                        elif ifoverchromosome(out[0], end) == 7:
+                            out.append(getAnchroNum(
+                                [[out[0]-int(args.min)-int(args.max), out[0]-int(args.min)]]))
+                        elif ifoverchromosome(out[0], end) == 8:
+                            out.append(getAnchroNum(
+                                [[1, out[0]-int(args.min)]]))
                     else:  # 对多个boundary进行计算
                         out.sort()
                         anchroindex = [[1, end]]
                         for item in out:
-                            if ifoverchromosome(item, end) == 1:
-                                anchroindex = intersectAnchro(
-                                    anchroindex, [[1, item-int(args.gap)], [item+int(args.gap), end]])
-                            elif ifoverchromosome(item, end) == 2:
-                                anchroindex = intersectAnchro(
-                                    anchroindex, [[item+int(args.gap), end]])
-                            elif ifoverchromosome(item, end) == 3:
-                                anchroindex = intersectAnchro(
-                                    anchroindex, [[1, item-int(args.gap)]])
+                            if ifoverchromosome(out[0], end) == 1:
+                                anchroindex = intersectAnchro(anchroindex,
+                                                              [[out[0]-int(args.min)-int(args.max), out[0]-int(args.min)], [out[0]+int(args.min), out[0]+int(args.min)+int(args.max)]])
+                            elif ifoverchromosome(out[0], end) == 2:
+                                anchroindex = intersectAnchro(anchroindex,
+                                                              [[out[0]-int(args.min)-int(args.max), out[0]-int(args.min)], [out[0]+int(args.min), end]])
+                            elif ifoverchromosome(out[0], end) == 3:
+                                anchroindex = intersectAnchro(anchroindex,
+                                                              [[1, out[0]-int(args.min)], [out[0]+int(args.min), out[0]+int(args.min)+int(args.max)]])
+                            elif ifoverchromosome(out[0], end) == 4:
+                                anchroindex = intersectAnchro(anchroindex,
+                                                              [[1, out[0]-int(args.min)], [out[0]+int(args.min), end]])
+                            elif ifoverchromosome(out[0], end) == 5:
+                                anchroindex = intersectAnchro(anchroindex,
+                                                              [[out[0]+int(args.min), out[0]+int(args.min)+int(args.max)]])
+                            elif ifoverchromosome(out[0], end) == 6:
+                                anchroindex = intersectAnchro(anchroindex,
+                                                              [[out[0]+int(args.min), end]])
+                            elif ifoverchromosome(out[0], end) == 7:
+                                anchroindex = intersectAnchro(anchroindex,
+                                                              [[out[0]-int(args.min)-int(args.max), out[0]-int(args.min)], ])
+                            elif ifoverchromosome(out[0], end) == 8:
+                                anchroindex = intersectAnchro(anchroindex,
+                                                              [[1, out[0]-int(args.min)]])
                         out.append(getAnchroNum(
                             anchroindex))
                 outFile.write("\n".join([str(i) for i in out]))
