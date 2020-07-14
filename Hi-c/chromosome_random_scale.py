@@ -1,3 +1,4 @@
+# encoding:utf-8
 '''/*
  * @Author: zpliu
  * @Date: 2020-05-29 15:40:14
@@ -13,19 +14,51 @@
 '''
 import argparse
 import random
+import numpy as np
 import os
+import sys
+import multiprocessing
 parser = argparse.ArgumentParser(
     description="intersect conserve  homolog AS event")
 parser.add_argument("-chr", help="chrosomoe bed file")
 parser.add_argument("-t", help="lterate times")
 parser.add_argument("-d", help="out directory")
+parser.add_argument("-p", help="number of threads")
 parser.add_argument("-min", help="the minimal length of TAD")
 parser.add_argument("-max", help="the minimal length of TAD")
-parser.add_argument("-init", help="init boundary random position")
 
 args = parser.parse_args()
 
+'''
+随机得到TAD的长度
+'''
 
+
+def getrandomTADlength():
+    return random.randint(int(args.min), int(args.max))
+
+
+'''
+截取TAD后，剩余染色体坐标
+TADarray [start, end]
+chrosomeArray:[[start1,end1],[start2,end2]]
+'''
+def remaindChrosome(TADarray, chrosomeArray):
+    for i in chrosomeArray:
+        if i[0] > TADarray[1] and i[1] < TADarray[0]:  # 与染色体片段没有交集
+            continue
+        else:  # 找到TAD所在的染色体区域
+            break
+    chrosomeArray.remove(i)  # 去除TAD所在区域
+    if TADarray[0]-i[0] >= int(args.min):
+        chrosomeArray.append([i[0], TADarray[0]-1])
+    if i[1]-TADarray[1] >= int(args.min):
+        chrosomeArray.append([TADarray[1]+1, i[1]])
+    return chrosomeArray
+
+'''
+根据文件夹的名字创建目录
+'''
 def mkdir(path):
     # 去除首位空格
     path = path.strip()
@@ -41,144 +74,100 @@ def mkdir(path):
         print(path+' 目录已存在')
         return False
 
-
-def satisfGap(Array1, min):
-    for index in range(1, len(Array1)):
-        if Array1[index] - Array1[index-1] < min:
-            return False
-        else:
+'''
+重指定的染色体范围随机出一定长度的TAD, 有可能随机不出结果陷入死循环
+'''
+def randomTAD(TADlength, chrosomeArray):
+    tmp = []
+    for i in chrosomeArray:
+        if i[1]-i[0] < TADlength:
             continue
-    return True
+        else:
+            start = np.arange(i[0], i[1]-TADlength, 1)
+            tmp += [i[0], i[1]-TADlength]
+    #
+    tmp2 = []
+    for i in range(0, len(tmp), 2):
+        # 获取每个片段的随机起始位置
+        tmp2.append(random.sample(range(tmp[i], tmp[i+1]), 1)[0])
+    try:
+        start = random.choice(tmp2)  # 从随机起始位置挑一个
+    except:
+        print("找不到满足的TAD了,重新获取一个随机TAD长度")
+        return []
+    return [start, start+TADlength-1]
 
-
-def ifoverchromosome(anchro, chromosomelength):
-    '''
-    判断bodunary位置与染色长度间关系
-    '''
-    if anchro+int(args.min) < chromosomelength and anchro-int(args.min) > 1:
-        if anchro+int(args.min)+int(args.max) < chromosomelength and anchro-int(args.min)-int(args.max) > 1:
-            return 1
-        if anchro+int(args.min)+int(args.max) > chromosomelength and anchro-int(args.min)-int(args.max) > 1:
-            return 2
-        if anchro+int(args.min)+int(args.max) < chromosomelength and anchro-int(args.min)-int(args.max) < 1:
-            return 3
-        if anchro+int(args.min)+int(args.max) > chromosomelength and anchro-int(args.min)-int(args.max) < 1:
-            return 4
-    if anchro+int(args.min) < chromosomelength and anchro-int(args.min) < 1:
-        if anchro+int(args.min)+int(args.max) < chromosomelength:
-            return 5
-        if anchro+int(args.min)+int(args.max) > chromosomelength:
-            return 6
-    if anchro+int(args.min) > chromosomelength and anchro-int(args.min) > 1:
-        if anchro-int(args.min)-int(args.max) > 1:
-            return 7
-        if anchro-int(args.min)-int(args.max) < 1:
-            return 8
-    if anchro+int(args.min) > chromosomelength and anchro-int(args.min) < 1:
-        return 9
-
-
-def getAnchroNum(anchro):
-    '''
-    对指定范围的染色体获取随机数组，
-    再从随机数组中获取随机数
-    '''
-    tmp = []
-    for item in anchro:
-        tmp.append(random.randint(item[0], item[1]))
-    return random.choice(tmp)
-
-
-def intersectAnchro(anchro1, anchro2):
-    '''
-    每添加一个boundary就更新，锚点区域
-    '''
-    tmp = []
-    for item1 in anchro1:
-        for item2 in anchro2:
-            if item1[0] > item2[1] or item1[1] < item2[0]:
-                continue
-            else:
-                tmp2 = item1+item2
-                tmp2.sort()
-                tmp.append([tmp2[1], tmp2[2]])
-    if(len(tmp) == 0):
-        print("锚点出错!!!!!!!!!!!!!!")  # 取交集时出现了问题
+'''
+###使用递归来随机TAD的长度信息
+# total 染色体内需要找到的TAD数目
+# count 记录成功迭代的数目
+# chrosomeArray 记录除去TAD后剩余的长度
+'''
+def RecursicvegetTAD(total, count, chrosomeArray):
+    if count == total:
+        return []
     else:
-        return tmp
+        # 获取本次随机TAD长度
+        TADlength = getrandomTADlength()
+        # 获取TAD坐标数组
+        i = 100
+        while i >= 0:  # 循环100次，防止得不到TAD
+            TADArray = randomTAD(TADlength, chrosomeArray)
+            if(len(TADArray)) != 0:
+                break
+            i = i-1
+        if i < 0:  # 最后一次循环都没搞出有效的TAD，这轮迭代作废
+            return [-1]
+        # print("找到第"+str(count+1)+"随机TAD,进入下一层递归")
 
+        chrosomeArray = remaindChrosome(TADArray, chrosomeArray)
+        # print(chrosomeArray)
+        count += 1
+        return TADArray+RecursicvegetTAD(total, count, chrosomeArray)
 
-mkdir(args.d)
-out = []
-with open(args.chr, 'r') as File:
-    for line in File.readlines():
+'''
+每个进程执行的函数
+传入需要执行的染色体数据，和进程ID号
+每条染色体体进行1000轮迭代，完成一轮迭代就把一个结果写入文件
+##如果某一轮迭代进入死循环，则重新本轮迭代
+'''
+def processFile(lines, i):
+    print(">>>进程:"+str(i)+"启动将处理:" +
+          "\t".join([i.split("\t")[0] for i in lines]))
+    for line in lines:
         line = line.strip("\n").split("\t")
-        chromosomeName = line[0]
-        end = int(line[1])
-        count = int(line[2])+1
-        mkdir(args.d+"/"+chromosomeName)
-        i = 1
-        while(i <= int(args.t)):
-            with open(args.d+"/"+chromosomeName+"/"+str(i), 'w') as outFile:
-                while(len(out) < count):
-                    if len(out) == 0:  # 获取初始boundary的随机坐标
-                        out.append(random.randint(1, int(args.init)))
-                    elif len(out) == 1:  # 其实这步可以和else合并
-                        if ifoverchromosome(out[0], end) == 1:
-                            out.append(getAnchroNum(
-                                [[out[0]-int(args.min)-int(args.max), out[0]-int(args.min)], [out[0]+int(args.min), out[0]+int(args.min)+int(args.max)]]))
-                        elif ifoverchromosome(out[0], end) == 2:
-                            out.append(getAnchroNum(
-                                [[out[0]-int(args.min)-int(args.max), out[0]-int(args.min)], [out[0]+int(args.min), end]]))
-                        elif ifoverchromosome(out[0], end) == 3:
-                            out.append(getAnchroNum(
-                                [[1, out[0]-int(args.min)], [out[0]+int(args.min), out[0]+int(args.min)+int(args.max)]]))
-                        elif ifoverchromosome(out[0], end) == 4:
-                            out.append(getAnchroNum(
-                                [[1, out[0]-int(args.min)], [out[0]+int(args.min), end]]))
-                        elif ifoverchromosome(out[0], end) == 5:
-                            out.append(getAnchroNum(
-                                [[out[0]+int(args.min), out[0]+int(args.min)+int(args.max)]]))
-                        elif ifoverchromosome(out[0], end) == 6:
-                            out.append(getAnchroNum(
-                                [[out[0]+int(args.min), end]]))
-                        elif ifoverchromosome(out[0], end) == 7:
-                            out.append(getAnchroNum(
-                                [[out[0]-int(args.min)-int(args.max), out[0]-int(args.min)]]))
-                        elif ifoverchromosome(out[0], end) == 8:
-                            out.append(getAnchroNum(
-                                [[1, out[0]-int(args.min)]]))
-                    else:  # 对多个boundary进行计算
-                        out.sort()
-                        anchroindex = [[1, end]]
-                        for item in out:
-                            if ifoverchromosome(out[0], end) == 1:
-                                anchroindex = intersectAnchro(anchroindex,
-                                                              [[out[0]-int(args.min)-int(args.max), out[0]-int(args.min)], [out[0]+int(args.min), out[0]+int(args.min)+int(args.max)]])
-                            elif ifoverchromosome(out[0], end) == 2:
-                                anchroindex = intersectAnchro(anchroindex,
-                                                              [[out[0]-int(args.min)-int(args.max), out[0]-int(args.min)], [out[0]+int(args.min), end]])
-                            elif ifoverchromosome(out[0], end) == 3:
-                                anchroindex = intersectAnchro(anchroindex,
-                                                              [[1, out[0]-int(args.min)], [out[0]+int(args.min), out[0]+int(args.min)+int(args.max)]])
-                            elif ifoverchromosome(out[0], end) == 4:
-                                anchroindex = intersectAnchro(anchroindex,
-                                                              [[1, out[0]-int(args.min)], [out[0]+int(args.min), end]])
-                            elif ifoverchromosome(out[0], end) == 5:
-                                anchroindex = intersectAnchro(anchroindex,
-                                                              [[out[0]+int(args.min), out[0]+int(args.min)+int(args.max)]])
-                            elif ifoverchromosome(out[0], end) == 6:
-                                anchroindex = intersectAnchro(anchroindex,
-                                                              [[out[0]+int(args.min), end]])
-                            elif ifoverchromosome(out[0], end) == 7:
-                                anchroindex = intersectAnchro(anchroindex,
-                                                              [[out[0]-int(args.min)-int(args.max), out[0]-int(args.min)], ])
-                            elif ifoverchromosome(out[0], end) == 8:
-                                anchroindex = intersectAnchro(anchroindex,
-                                                              [[1, out[0]-int(args.min)]])
-                        out.append(getAnchroNum(
-                            anchroindex))
-                outFile.write("\n".join([str(i) for i in out]))
-                out = []
-                print(chromosomeName+"\t的第"+str(i)+"\t文件完成")
-                i += 1
+        mkdir(args.d+"/"+line[0])
+        if(int(line[2]) % 2 == 0):  # boundary为奇数的情况
+            total = int(line[2])/2
+        else:
+            total = int(line[2])/2+1
+        for i in range(0, int(args.t)):
+            out = RecursicvegetTAD(total, 0, [[0, int(line[-2])]])
+            while out[-1] == -1:  # 这轮迭代陷入死循环，作废重新迭代
+                print("第："+str(i)+"轮迭代陷入死循环，重新本轮迭代")
+                out = RecursicvegetTAD(total, 0, [[0, int(line[-2])]])
+            print("染色体:"+line[0]+"完成第"+str(i+1)+"轮迭代")
+            with open(args.d+"/"+line[0]+"/"+str(i+1), 'w') as File2:
+                for item in out:
+                    File2.write(line[0]+"\t"+str(item-100000) +
+                                "\t"+str(item+100000)+"\n")
+
+
+with open(args.chr, 'r') as File:
+    lines = File.readlines()
+# processFile(lines)
+
+
+p = multiprocessing.Pool(20)
+average = int(len(lines)/int(args.p))
+for i in range(0, int(args.p)):
+    if i == int(args.p)-1:
+        start = i*average
+        end = len(lines)
+    else:
+        start = i*average
+        end = (i+1)*average
+    p.apply_async(processFile, (lines[start:end], i),
+                  callback=None)  # 传参数时，逗号不能够少
+p.close()
+p.join()
