@@ -1,0 +1,9 @@
+#BSUB -J TM1Rep1
+#BSUB -n 5
+#BSUB -R span[hosts=1]
+#BSUB -o bismark.out 
+#BSUB -e bismark.err
+#BSUB -q "high"
+softwarwPath=~/software/Bismark-0.22.1/ 
+fileName='Rep1'
+${softwarwPath}/deduplicate_bismark -p -o ${fileName} --output_dir ./  --bam ../01bismark/${fileName}_1_bismark_hisat2_pe.bam && ${softwarwPath}/bismark_methylation_extractor -p   --comprehensive --parallel 5 --bedGraph --gzip -o ./ ./${fileName}.deduplicated.bam 

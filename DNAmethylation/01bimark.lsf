@@ -1,0 +1,14 @@
+#BSUB -J TM1bismark
+#BSUB -n 5
+#BSUB -R span[hosts=1]
+#BSUB -o bismark.out 
+#BSUB -e bismark.err
+#BSUB -q "smp"
+softwarwPath=~/software/Bismark-0.22.1/ 
+genomePath='/data/cotton/zhenpingliu/QingxinSong_GB_DNAmethlation/genome/TM-1_v1.0/'
+splicePath='/public/home/zpliu/work/Alternative/data/Ghirsutum_genome_HAU_v1.0/Ghirsutum_gene_model_splce.txt'
+R1Path='./Rep1_1.fastq'
+R2Path='./Rep1_2.fastq'
+
+
+${softwarwPath}/bismark --genome_folder ${genomePath} --hisat2     --non_directional --known-splicesite-infile ${splicePath} -1 ${R1Path} -2 ${R2Path} -L 30 -N 1 -o ./ -p 5
