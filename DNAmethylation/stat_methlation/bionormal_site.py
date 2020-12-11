@@ -4,7 +4,7 @@ version:
 Author: zpliu
 Date: 2020-12-07 10:11:08
 LastEditors: zpliu
-LastEditTime: 2020-12-09 20:32:15
+LastEditTime: 2020-12-10 12:49:30
 @param:python bionormal.py CpG_read.gz CpG_bionormalOutFile.txt processNum
 '''
 import multiprocessing
@@ -23,7 +23,7 @@ def BioTest(AllData, processId):
     for item in AllData:
         item = item.strip("\n").split("\t")
         count = int(item[2])+int(item[3])
-        p_value = stats.binom.pmf(int(item[3]), count, 0.006)
+        p_value = stats.binom.pmf(int(item[2]), count, 0.006)
         output += ("\t".join(item)+"\t"+str(p_value)+"\n",)  # this is a tuple
     return output
 
