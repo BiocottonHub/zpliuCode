@@ -69,7 +69,7 @@ if __name__ == "__main__":
         for line in File:
             line = line.strip("\n").split("\t")
             bed = scaletor[line[0]](int(line[1]), int(line[2]))
-            if line[3]:
+            if len(line)>3:
                 out.append(bed+"\t"+"\t".join(line[3::])+"\n")
             else:
                 out.append(bed+"\n")
