@@ -6,7 +6,14 @@ shortcut
 
 <img src="https://ftp.bmp.ovh/imgs/2020/12/558d13fa9b93b8c3.png" alt="show transcript sv" style="zoom:80%;" />
 
-#### 1.Usage:
+#### 1.dependence：
+
++ python3
++ [`muscle` (Multiple sequence alignment)](http://www.drive5.com/)
+
+> :warning:	note: In the script `muscle.py`，will to call `muscle` module. what's more I have set the path be `~/software/muscle3.8.31_i86linux64`，so if  you must set the path to `muscle` to guarante script work.
+
+#### 2.Usage:
 
 + `homolog` the homologous of two genome
 + `fasta1`  A genome transcripts cDNA sequence 
@@ -20,7 +27,7 @@ shortcut
 python ../transcriptSvs.py  -homolog  homologGeneList.txt -fasta1 A_transcript_cDNA.fa  -fasta2 B_transcript_cDNA.fa  -RNAseq1 A_transcripts_expression.txt  -RNAseq2 B_transcripts_expression.txt -transcriptSVs.txt 
 ```
 
-#### 2.Output
+#### 3.Output
 
 In the last two columns , indicate the svs length in the two transcripts or genes.
 
@@ -40,7 +47,7 @@ evm.TU.Ga01G0015	Ghir_A01G000150	PB.7411.3	PB.5353.1	3.0	1.0	2,749,91,0	1
 
 ```
 
-#### 3.InputFile
+#### 4.InputFile
 
 + homolog Gene List File
 
