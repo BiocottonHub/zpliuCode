@@ -1,4 +1,4 @@
-## transcriptSV
+## 1.transcriptSV
 
 Detect the SVs(indel PAVs) in the two genome feature, for example genes or transcripts.
 
@@ -12,6 +12,8 @@ shortcut
 + [`muscle` (Multiple sequence alignment)](http://www.drive5.com/)
 
 > :warning:	note: In the script `muscle.py`，will to call `muscle` module. what's more I have set the path be `~/software/muscle3.8.31_i86linux64`，so if  you must set the path to `muscle` to guarante script work.
+
+What's more the SVs identified by scripts be satisfy with at least **20bp** sequences in flank
 
 #### 2.Usage:
 
@@ -74,5 +76,37 @@ evm.TU.Ga01G0004	PB.7404.1	1782	2323	9.532540	9	4
 evm.TU.Ga01G0004	PB.7404.2	1782	3054	0.526973	1	1
 evm.TU.Ga01G0007	PB.7405.1	441	664	34.466625	1	0
 evm.TU.Ga01G0008	PB.7406.2	903	2920	0.491072	1	3
+```
+
+## 2.transcript CDS Identity
+
+This scripts would calculate the identity of two isoform's CDS sequences.
+
+>$\frac{r1}{r1+r2}$
+>
+>r1: the count of idntity base
+>
+>r2: the count of different base
+
+#### dependence：
+
++ python3
++ [`muscle` (Multiple sequence alignment)](http://www.drive5.com/)
+
+> In order to prevent occur the same name of  isoform，we add the prefix to each isoform 
+
+#### Usage 
+
++ `homolog` the homologous of two genome
++ `fasta1`  A genome transcripts CDS sequence 
++ `fasta2`  B genome transcripts CDS sequence 
++ `RNAseq1` A genome transcriptsexpression
++ `RNAseq2` B genome transcriptsexpression
++ `prex1`  the prefix of A genome  isoform
++ `prex2`  the prefix of B genome  isoform
++ `out`  output file
+
+```bash
+python ~/github/zpliuCode/transcriptSV/transcript_CDS_identity.py -homolog ~/work/Alternative/result/homologo/homologGene/Result/D5_vs_Dt_collinearity.txt -fasta1 ~/work/Alternative/result/Gr_result/CO41_42_result/collapse/PacBio_CDS.fa -fasta2 ~/work/Alternative/result/Gh_result/CO31_32_result/collapse/PacBio_CDS.fa  -RNAseq1 D5_PacBio.txt -RNAseq2 TM1_PacBio.txt -prex1 D5  -prex2 Dt  -out transcriptSVs/D5_Dt_isoform_CDS.txt
 ```
 
