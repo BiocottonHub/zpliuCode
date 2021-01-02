@@ -4,7 +4,7 @@ version:
 Author: zpliu
 Date: 2020-12-29 09:45:06
 LastEditors: zpliu
-LastEditTime: 2020-12-29 19:01:48
+LastEditTime: 2021-01-02 20:55:31
 @param:
 '''
 import re
@@ -240,7 +240,7 @@ def runASevent(ASevents, homologDict, querygeneCoordinateDict, datageneCoordinat
                     max_rank = tmp
                 else:
                     pass
-            tmp = line+"\t"+max_kmer+"\t"+str(tmp)+"\t"+str(ASLength)+"\n"
+            tmp = line+"\t"+max_kmer+"\t"+str(max_rank)+"\t"+str(ASLength)+"\n"
             out.append(tmp)
     return out
 
