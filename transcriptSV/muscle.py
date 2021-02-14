@@ -4,7 +4,7 @@ version: 1.0
 Author: zpliu
 Date: 2020-12-22 18:57:03
 LastEditors: zpliu
-LastEditTime: 2020-12-23 20:50:55
+LastEditTime: 2020-12-24 09:48:34
 @param: 
 '''
 import os
@@ -55,6 +55,19 @@ def readFastaFile2(fastaFile: str):
     return tmp
 
 
+def proteinMuscle(Atranscript: str, Btranscript: str):
+    '''
+    @Descripttion: caculate the identity of protein sequence
+    @param: Atranscript sequence  @str
+    @param: Btranscript sequence  @str
+    @return: idnetity amino acid count @str
+    '''
+    infasta = Atranscript+"\n"+Btranscript+"\n"
+    out = os.popen(
+        "printf \"%s\"|~/software/muscle3.8.31_i86linux64  -clw  2>/dev/null" % infasta).read()
+    return len(re.findall(r'\*', out))
+
+
 if __name__ == "__main__":
     A, B = readFastaFile2(sys.argv[1])
-    print(runMuscle(A, B))
+    print(proteinMuscle(A, B))
