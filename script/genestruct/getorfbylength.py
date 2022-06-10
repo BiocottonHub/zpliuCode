@@ -1,4 +1,17 @@
+'''
+Descripttion: 
+version: 
+Author: zpliu
+Date: 2020-12-28 19:25:14
+LastEditors: zpliu
+LastEditTime: 2020-12-28 19:28:36
+@param: isoform Annotion gtf file @str
+@param: EMBOSS all predict CDS sequence file @str
+@paran: out file of CDS sequence @str
+'''
 # coding:utf-8
+
+
 import sys
 import re
 from readgtf import getTranscriptInfo

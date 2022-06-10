@@ -4,7 +4,7 @@ version:
 Author: zpliu
 Date: 2020-12-26 20:26:15
 LastEditors: zpliu
-LastEditTime: 2020-12-26 21:04:13
+LastEditTime: 2021-01-24 09:36:48
 @param: 
 '''
 import random
@@ -39,7 +39,7 @@ if __name__ == "__main__":
     geneCount = []
     isoformCount = []
     out = []
-    for i in np.arange(0.1, 1.1, 0.1):
+    for i in np.arange(0.01, 1.01, 0.01):
         sampleCount = round(totalreadCount*i)
         for readID in random.sample(range(1, totalreadCount+2, 1), sampleCount):
             try:

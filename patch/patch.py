@@ -15,6 +15,7 @@ import time
 import sys
 from bs4 import BeautifulSoup
 from tqdm import tqdm
+import os
 # 导入读取基因文件的函数
 
 
@@ -34,7 +35,7 @@ def fastaread(fastaFile):
 # get_url为使用cookie所登陆的网址，该网址必须先登录才可
 get_url = 'http://gene-regulation.com/cgi-bin/pub/programs/patch/bin/patch.cgi'
 #! 使用cookie文件进行登录
-cookie_filename = './cookie.txt'
+cookie_filename = os.path.join(os.path.dirname(__file__), 'cookie.txt')
 cookie_aff = http.cookiejar.MozillaCookieJar(cookie_filename)
 cookie_aff.load(cookie_filename, ignore_discard=True, ignore_expires=True)
 handler = urllib.request.HTTPCookieProcessor(cookie_aff)

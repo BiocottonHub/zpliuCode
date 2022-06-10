@@ -4,7 +4,7 @@ version:
 Author: zpliu
 Date: 2020-12-23 22:28:57
 LastEditors: zpliu
-LastEditTime: 2020-12-23 23:55:52
+LastEditTime: 2020-12-24 09:48:25
 @param: 
 '''
 import argparse
@@ -41,7 +41,7 @@ class IsoformMessage(object):
 
     @sequence.setter
     def sequence(self, fastaSequence):
-        self.__sequence = ">\n{name}\n{fasta}".format(
+        self.__sequence = ">{name}\n{fasta}".format(
             name=self.__isoform, fasta=fastaSequence)
         self.__sequenceLen = len(fastaSequence)
 
@@ -63,7 +63,7 @@ def getGeneMessage(geneIsoformFile, IsoformSequenceFile, prefix):
     with open(geneIsoformFile, 'r') as File:
         for line in File:
             line = line.strip("\n").split("\t")
-            isoformName = "{prefix}*{name}".format(
+            isoformName = "{prefix}^{name}".format(
                 prefix=prefix, name=line[1])
             out[line[0]] = out.get(line[0], {})
             out[line[0]][isoformName] = IsoformMessage()

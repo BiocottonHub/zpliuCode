@@ -3,7 +3,8 @@ import numpy as np
 import sys
 import re
 import copy
-from readFastaFromBed import reverseSequence
+from readFastaFromBed import getFastaBypybedtools
+# import pybedtools
 
 
 class gene(object):
@@ -280,10 +281,48 @@ class transcript:
         else:
             return ">"+self.transcriptName+"\n"+reverseSequence(sequence)
 
+    def getCDSsequence(self, startConda, stopConda, genomeSequenceFile):
+        '''
+        @Descripttion: According start code and stop conda loction to get CDS sequence
+        @param: start codan @int
+        @param: stop codan @int
+        @param: genomeSequence @dict
+        @return: CDS sequence @str
+        '''
+        tmp = sorted(self.exons)
+        def f(x, y): return None if x[0] > y[1] or x[1] < y[0] else 1
+        tmp2 = [startConda, stopConda]
+        # get CDS region
+        for i in range(0, len(tmp), 2):
+            if f(sorted([startConda, stopConda]), [tmp[i], tmp[i+1]]):
+                tmp2.append(tmp[i])
+                tmp2.append(tmp[i+1])
+            else:
+                pass
+        tmp2.sort()
+        del tmp2[0]
+        del tmp2[-1]
+        BedtoolsString = ''
+        sequence = ''
+        for i in range(0, len(tmp2), 2):
+            if self.stand == "+":
+                BedtoolsString += "\t".join([self.chromosome, str(tmp2[i]-1),
+                                             str(tmp2[i+1]), 'tmp'+str(i), '1', self.stand])+"\n"
+            else:
+                ##- stand
+                BedtoolsString = "\t".join([self.chromosome, str(tmp2[i]-1),
+                                            str(tmp2[i+1]), 'tmp'+str(i), '1', self.stand])+"\n"+BedtoolsString
+        tmpsequence = getFastaBypybedtools(BedtoolsString, genomeSequenceFile)
+        for item in tmpsequence.split("\n"):
+            if re.match(r'^[^>]', item):
+                sequence += item
+        return '>'+self.transcriptName+"\n"+sequence+"\n"
+
 
 def getGeneInfo(gtfFile):
     geneDict = {}
     transcriptDict = {}
+    # search gene id and transcript id
     genePattern = r'gene_id "([^"]*)"'
     transcriptPattern = r'transcript_id "([^"]*)"'
     with open(gtfFile, 'r') as File:

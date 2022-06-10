@@ -4,8 +4,17 @@ version: 1.0
 Author: zpliu
 Date: 2020-12-30 15:43:15
 LastEditors: zpliu
-LastEditTime: 2020-12-30 19:24:00
-@param: 
+LastEditTime: 2020-12-30 20:17:06
+@out:
++ geneId
++ PacBioId1
++ PacBioId2
++ TSS same or not 
++ ployA same or not 
++ splice site same or not 
++ gene contained TSS site 
++ gene contained ployA site 
++ gene contained Isoform numbed 
 '''
 from itertools import combinations
 from collections import Counter
@@ -56,7 +65,29 @@ def deletTranscript(isoform1Object, isoform2Object):
     else:
         splitsitSame = 'splitDiff'
 
-    return "\t".join([geneId, isoformName1, isoformName2, TSSSame, plotASame, splitsitSame])+"\n"
+    return "\t".join([geneId, isoformName1, isoformName2, TSSSame, plotASame, splitsitSame])
+
+
+def getTSSandploANum(transcriptsObjectList):
+    '''
+    @Descripttion: get gene PloyA、TSS、isoform count
+    @param: 
+    @return: 
+    '''
+    TTS = []
+    ployA = []
+    isoformCount = 0
+    for isoform in transcriptsObjectList:
+        isoformCount += 1
+        if isoform.stand == "+":
+            exon = sorted(isoform.getExonCoordinate())
+            TTS.append(exon[0])
+            ployA.append(exon[-1])
+        else:
+            exon = sorted(isoform.getExonCoordinate())
+            TTS.append(exon[-1])
+            ployA.append(exon[0])
+    return "\t".join([str(len(list(set(i)))) for i in (TTS, ployA)])+"\t"+str(isoformCount)
 
 
 if __name__ == "__main__":
@@ -66,9 +97,11 @@ if __name__ == "__main__":
     with open(outFile, 'w') as File:
         for key in geneMessage:
             if len(geneMessage[key].transcripts) > 1:
+                TSSandployNum = getTSSandploANum(
+                    geneMessage[key].transcriptsObject)
                 for isoform1, isoform2 in combinations([i for i in geneMessage[key].transcriptsObject], 2):
                     result = deletTranscript(isoform1, isoform2)
                     # print(result)
-                    File.write(result)
+                    File.write(result+"\t"+TSSandployNum+"\n")
             else:
                 pass

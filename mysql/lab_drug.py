@@ -19,10 +19,10 @@ postUrl = 'http://211.69.141.135/actionUser.saveUser.do'
 
 # cookie setting
 cookieDict = {
-    'JSESSIONID': 'BC10C6B031FDF48F0820D9BBF14EB328',
+    'JSESSIONID': '7F47F82EAB3FBB05843CD65D35339E47',
     'Path': '/',
     ' Domain': '211.69.141.135',
-    'login_sessid': 'BC10C6B031FDF48F0820D9BBF14EB328'
+    'login_sessid': '7F47F82EAB3FBB05843CD65D35339E47'
 }
 
 cookie = cookiejar_from_dict(cookieDict, cookiejar=None, overwrite=True)

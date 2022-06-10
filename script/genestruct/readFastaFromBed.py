@@ -13,27 +13,39 @@
 '''
 import sys
 import re
-from tqdm import tqdm
+import pybedtools
+#from tqdm import tqdm
 
 
 def readFastaFile(genomeFile):
     with open(genomeFile, 'r') as File:
-        genes_fastas = File.readlines()
+        '''
+        @Descripttion: get fasta dict
+        @param: 
+        @return: 
+        '''
         genes_dict = {}
-    for i in tqdm(range(0, len(genes_fastas)), desc="read genome file"):
-        if re.match("^>", genes_fastas[i]):
-            genes_fastas[i] = genes_fastas[i].strip("\n").strip(">")
-            index1 = i+1
-            sequence = ""
-            while re.match("^[^>]", genes_fastas[index1]):
-                sequence += genes_fastas[index1].strip("\n")
-                index1 += 1
-                if index1 == len(genes_fastas):
-                    break
-            genes_dict[genes_fastas[i]] = sequence
-        else:
-            continue
+        geneId = ''
+        for line in File:
+            # print(line)
+            if re.match(r'^>', line):
+                geneId = re.split(r'\s+', line.strip(">").strip("\n"))[0]
+                genes_dict[geneId] = genes_dict.get(geneId, '')
+            else:
+                genes_dict[geneId] += line.strip("\n")
     return genes_dict
+
+
+def getFastaBypybedtools(Bedstring, FastaFile):
+    '''
+    @Descripttion: extrract sequence by Bedtools
+    @param: 
+    @return: 
+    '''
+    a = pybedtools.BedTool(Bedstring, from_string=True)
+    fasta = pybedtools.example_filename(FastaFile)
+    a = a.sequence(fi=fasta, name=True, s=True)
+    return open(a.seqfn).read()
 
 
 def reverseSequence(seq):
@@ -41,3 +53,7 @@ def reverseSequence(seq):
              'N': 'N', 'a': 'T', 't': 'A', 'g': 'C', 'c': 'G'}
     rever_seq1 = [dict1[k] for k in seq[::-1]]
     return(''.join(rever_seq1))
+
+
+if __name__ == "__main__":
+    print(readFastaFile(sys.argv[1]).keys()[0:13])

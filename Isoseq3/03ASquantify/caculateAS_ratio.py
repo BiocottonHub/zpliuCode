@@ -4,7 +4,7 @@ version:
 Author: zpliu
 Date: 2020-12-28 21:33:27
 LastEditors: zpliu
-LastEditTime: 2020-12-28 22:19:24
+LastEditTime: 2021-01-04 13:21:49
 @param: 
 '''
 import sys
@@ -22,7 +22,7 @@ def getASevent(ASeventFile: str):
     with open(ASeventFile, 'r') as File:
         for line in File:
             line = line.strip("\n").split("\t")
-            def f(x): return [i for i in x.split(",") if re.match(r'^PB', i)]
+            def f(x): return [i for i in x.split(",")]
             supportIsoform = f(line[3])
 
             unsupportIsoform = [i for i in f(
@@ -52,16 +52,20 @@ if __name__ == "__main__":
     genereadCount = getGeneFLread(sys.argv[2])
     with open(sys.argv[3], 'w') as File:
         for event, IsoformArray in ASeventDict.items():
-            if len(IsoformArray[1]) == 0:
-                # PacBio compared with reference transcript so skip
-                pass
-            else:
-                geneId = event.split(";")[0]
-                supportreadCount = 0
-                unsupportreadCount = 0
-                for i in IsoformArray[0]:
+            geneId = event.split(";")[0]
+            supportreadCount = 0
+            unsupportreadCount = 0
+            for i in IsoformArray[0]:
+                try:
                     supportreadCount += genereadCount[geneId][i]
-                for i in IsoformArray[1]:
+                except KeyError:
+                    # reference isoform
+                    supportreadCount += 0
+            for i in IsoformArray[1]:
+                try:
                     unsupportreadCount += genereadCount[geneId][i]
-                File.write(geneId+"\t"+event+"\t"+str(supportreadCount) +
-                           "\t"+str(unsupportreadCount)+"\t"+str(genereadCount[geneId]['count'])+"\n")
+                except KeyError:
+                    # reference isoform
+                    unsupportreadCount += 0
+            File.write(geneId+"\t"+event+"\t"+str(supportreadCount) +
+                       "\t"+str(unsupportreadCount)+"\t"+str(genereadCount[geneId]['count'])+"\n")
