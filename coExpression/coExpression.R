@@ -41,7 +41,8 @@ net=blockwiseModules(
     saveTOMs = TRUE,
     saveTOMFileBase = paste(outPrefix,"-TOM",sep=""),
     verbose = 3,
-    nThreads=nthreads
+    nThreads=nthreads,
+    maxBlockSize=12000
 )
 #* 保存net文件
 save(net,file=paste(outPrefix,"-net.RData",sep=""))
