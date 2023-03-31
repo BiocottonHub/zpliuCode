@@ -1,0 +1,17 @@
+2023-03-31 16:49:39,224 - Reading Coords - INFO - syri:135 - Reading input from PAF file
+2023-03-31 16:49:43,457 - Reading Coords - WARNING - syri:135 - Chromosomes IDs do not match.
+2023-03-31 16:49:43,457 - Reading Coords - WARNING - syri:135 - Matching them automatically. For each reference genome, most similar query genome will be selected. Check mapids.txt for mapping used.
+2023-03-31 16:49:43,461 - Reading Coords - INFO - syri:135 - setting HC04_A01 as Chr01
+2023-03-31 16:49:51,780 - syri - INFO - syri:214 - starting
+2023-03-31 16:49:51,782 - syri - INFO - syri:214 - Analysing chromosomes: ['Chr01']
+2023-03-31 16:49:51,840 - syri.Chr01 - INFO - mapstar:48 - Chr01 (244, 11)
+2023-03-31 16:49:51,841 - syri.Chr01 - INFO - mapstar:48 - Identifying Synteny for chromosome Chr01
+2023-03-31 16:49:52,016 - syri.Chr01 - INFO - mapstar:48 - Identifying Inversions for chromosome Chr01
+2023-03-31 16:49:57,263 - syri.Chr01 - INFO - mapstar:48 - Identifying translocation and duplication for chromosome Chr01
+2023-03-31 16:49:57,873 - getCTX - INFO - syri:214 - Identifying cross-chromosomal translocation and duplication for chromosome2023-03-31 16:49:57.872889
+2023-03-31 16:49:58,290 - local_variation - INFO - syri:225 - Finding SVs in synOut.txt, invOut.txt, TLOut.txt, invTLOut.txt, ctxOut.txt
+2023-03-31 16:50:14,447 - local_variation - INFO - syri:245 - Finding SNPs and small indels
+2023-03-31 16:50:22,462 - local_variation - INFO - syri:257 - Combining outputs
+2023-03-31 16:50:22,485 - local_variation - INFO - syri:262 - Generating table output
+2023-03-31 16:50:36,111 - local_variation - INFO - syri:267 - Generating VCF
+2023-03-31 16:50:37,665 - local_variation - WARNING - syri:275 - Finished syri
