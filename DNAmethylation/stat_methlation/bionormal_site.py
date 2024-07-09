@@ -23,6 +23,7 @@ def BioTest(AllData, processId):
     for item in AllData:
         item = item.strip("\n").split("\t")
         count = int(item[2])+int(item[3])
+	#* 检验样本是否服从（n,0.006）的二项分布
         p_value = stats.binom.pmf(int(item[2]), count, 0.006)
         output += ("\t".join(item)+"\t"+str(p_value)+"\n",)  # this is a tuple
     return output

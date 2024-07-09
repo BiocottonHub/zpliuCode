@@ -113,7 +113,7 @@ cat HC04_A02-Chr03.paf |
 #* 改链后的PAF进行syri鉴定
 syri -c HC04_A02-Chr03_changeStand.paf \
     -r /public/home/zpliu/Pan-genome/Genotype_diploid/bwa_index/J85.fa \
-    -q /public/home/zpliu/Pan-genome/parallele/syri_SVs/HC04_At_chr_split/HC04_${queryChrom}_rev.fa \
+    -q /public/home/zpliu/Pan-genome/parallele/syri_SVs/HC04_At_chr_split/HC04_${queryChrom}.fa \
     -F P \
     --prefix HC04_A02-Chr03_changeStand_
 python  01syri_adjustInvert.py  HC04_A02-Chr03_changeStand_syri.out 0 1 HC04_A02-Chr03syri.out
